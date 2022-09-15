@@ -3,16 +3,11 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const BookSchema = new Schema({
-    id: {
-        type: Number,
-        required: true,
-        primaryKey: true,
-        autoIncrement: true
-    },
     name: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
+        unique: true
     },
     score: {
         type: Number,
