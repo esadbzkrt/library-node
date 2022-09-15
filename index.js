@@ -1,16 +1,18 @@
 const express = require('express');
 const app = express();
-const router = express.Router();
+//const router = express.Router();
 const mongoose = require('mongoose');
+const api = require('./routers/router');
 require('dotenv').config()
 
 const PORT = process.env.PORT;
 const MONGO= process.env.MONGO;
 
+//middleware
 
-
-
-app.get('/', (req, res) => res.send('Hello World!'));
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+app.use('/', api);
 
 app.listen(PORT, async () => {
     try {
