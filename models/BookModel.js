@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const Schema = mongoose.Schema;
 
@@ -16,6 +17,7 @@ const BookSchema = new Schema({
         default: -1
     }
 });
+BookSchema.plugin(AutoIncrement, {inc_field: 'id'});
 
 module.exports = mongoose.model('Book', BookSchema);
 
