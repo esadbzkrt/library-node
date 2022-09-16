@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const Schema = mongoose.Schema;
 
@@ -20,5 +21,5 @@ const BorrowSchema = new Schema({
     }
 
 });
-
+BorrowSchema.plugin(AutoIncrement, {inc_field: 'borrowId'});
 module.exports = mongoose.model('Borrow', BorrowSchema);

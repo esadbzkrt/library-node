@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const AutoIncrement = require('mongoose-sequence')(mongoose);
 const Schema = mongoose.Schema;
 
 const ReturnSchema = new Schema({
@@ -26,5 +26,5 @@ const ReturnSchema = new Schema({
         trim: true
     }
 });
-
+ReturnSchema.plugin(AutoIncrement, {inc_field: 'returnId'});
 module.exports = mongoose.model('Return', ReturnSchema);

@@ -12,7 +12,7 @@ const getAllBooks = async (req, res) => {
 
 const getBookById = async (req, res) => {
     try {
-        const book = await Book.findOne({bookId: req.params.id});
+        const book = await Book.findOne({bookId: req.params.bookId});
         res.status(200).json({message: 'getBookById', book});
     }
     catch (err) {
