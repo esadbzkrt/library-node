@@ -10,11 +10,11 @@ const BookSchema = new Schema({
         trim: true,
         unique: true
     },
-    userScore: {
+    score: {
         type: Array,
         required: true,
         trim: true,
-        default: -1
+        default: []
     }
 });
 

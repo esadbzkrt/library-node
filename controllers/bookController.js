@@ -21,7 +21,7 @@ const getBookById = async (req, res) => {
         const bookResponse = {
             id: book.bookId,
             name: book.name,
-            score: book.score,
+            score: book.score.length>0 ? book.score : -1,
         }
 
         res.status(200).json(bookResponse);
