@@ -12,9 +12,7 @@ const getAllUsers = async (req, res) => {
                 }
             }
         );
-        res.status(200).json({
-            users:usersDto
-        });
+        res.status(200).json(usersDto);
     } catch (err) {
         res.status(400).json({message: 'getAllUsers', err});
     }
@@ -23,7 +21,26 @@ const getAllUsers = async (req, res) => {
 const getUserById = async (req, res) => {
     try {
         const user = await User.findOne({userId: req.params.userId});
-        res.status(200).json({message: 'getUserById', user});
+        const userDto = {
+            id: user.userId,
+            name: user.name,
+            books: {
+                past: user.books.past.map(book => {
+                        return {
+                            name: book.name,
+                            userScore: book.userScore,
+                        }
+                    }
+                ),
+                present: user.books.present.map(book => {
+                        return {
+                            name: book.name,
+                        }
+                    }
+                )
+            }
+        }
+        res.status(200).json(userDto);
     } catch (err) {
         res.status(400).json({message: 'getUserById', err});
     }
@@ -31,11 +48,20 @@ const getUserById = async (req, res) => {
 
 const createUser = async (req, res) => {
     try {
-        const user = await User.create(req.body);
+        const user = new User({
+            userId: req.body.userId,
+            name: req.body.name,
+            books: {
+                present: [],
+                past: []
+            }
+        });
+        await user.save();
         res.status(201).json({message: 'createUser', user});
     } catch (err) {
         res.status(400).json({message: 'createUser', err});
     }
+
 }
 
 const borrowBook = async (req, res) => {

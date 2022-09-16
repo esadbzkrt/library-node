@@ -10,8 +10,8 @@ const BookSchema = new Schema({
         trim: true,
         unique: true
     },
-    score: {
-        type: Number,
+    userScore: {
+        type: Array,
         required: true,
         trim: true,
         default: -1
