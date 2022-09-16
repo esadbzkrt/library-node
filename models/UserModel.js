@@ -10,6 +10,18 @@ const UserSchema = new Schema({
         trim: true,
         unique: true
     },
+    books: {
+        past: [
+            {
+                type:mongoose.Schema.Types.ObjectId, ref:'Borrow'
+            }
+        ],
+        present: [
+            {
+                type:mongoose.Schema.Types.ObjectId, ref:'Return'
+            }
+        ]
+    }
 });
 
 UserSchema.plugin(AutoIncrement, {inc_field: 'userId'});
