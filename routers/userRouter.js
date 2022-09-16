@@ -9,9 +9,9 @@ router.get('/:userId', userController.getUserById)
 
 router.post('/', userController.createUser)
 
-router.post('/:userId/borrow/:borrowId', userController.borrowBook)
+router.post('/:userId/borrow/:bookId', userController.borrowBook)
 
-router.post('/:userId/return/:returnId', userController.returnBook)
+router.post('/:userId/return/:bookId', userController.returnBook)
 
 
 module.exports = router;

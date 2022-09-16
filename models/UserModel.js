@@ -10,16 +10,8 @@ const UserSchema = new Schema({
         unique: true
     },
     books: {
-        past: [
-            {
-                type:mongoose.Schema.Types.ObjectId, ref:'Borrow'
-            }
-        ],
-        present: [
-            {
-                type:mongoose.Schema.Types.ObjectId, ref:'Return'
-            }
-        ]
+        past: [],
+        present: []
     }
 });
 
