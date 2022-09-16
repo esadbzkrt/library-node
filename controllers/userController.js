@@ -2,9 +2,19 @@ const User = require('../models/userModel');
 const Book = require('../models/bookModel');
 
 const getAllUsers = async (req, res) => {
+
     try {
         const users = await User.find();
-        res.status(200).json({message: 'getAllUsers', users});
+        const usersDto = users.map(user => {
+                return {
+                    id: user.userId,
+                    name: user.name,
+                }
+            }
+        );
+        res.status(200).json({
+            users:usersDto
+        });
     } catch (err) {
         res.status(400).json({message: 'getAllUsers', err});
     }
