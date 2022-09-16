@@ -1,5 +1,7 @@
 const User = require('../models/userModel');
 const Book = require('../models/bookModel');
+const BorrowHistory = require('../models/BorrowHistoryModel');
+const PresentBorrow = require('../models/PresentBorrowModel');
 
 const getAllUsers = async (req, res) => {
 
@@ -51,10 +53,6 @@ const createUser = async (req, res) => {
         const user = new User({
             userId: req.body.userId,
             name: req.body.name,
-            books: {
-                present: [],
-                past: []
-            }
         });
         await user.save();
         res.status(201).json({message: 'createUser', user});
@@ -65,29 +63,64 @@ const createUser = async (req, res) => {
 }
 
 const borrowBook = async (req, res) => {
-    try {
-        const user = await User.findOne({userId: req.params.userId});
-        const book = await Book.findOne({bookId: req.params.bookId});
-        user.books.present.push(book.name);
-        await user.save();
-        res.status(201).json(user);
-    } catch (err) {
-        res.status(400).json(err.message);
+    const user = await User.findOne({userId: req.params.userId});
+    const book = await Book.findOne({bookId: req.params.bookId});
+    if (user.hasBook === false) {
+        if (book.isAvailable === true) {
+            try {
+                const presentBorrow = new PresentBorrow({
+                    userId: user.userId,
+                    bookId: book.bookId,
+                });
+                await presentBorrow.save();
+                book.isAvailable = false;
+                await book.save();
+                user.hasBook = true;
+                await user.save();
+                res.status(201).json(presentBorrow);
+            } catch (err) {
+                res.status(400).json(err.message);
+            }
+        } else {
+            res.status(400).json({message: 'Book has been borrowed, please try another book'});
+        }
+
+    } else {
+        res.status(400).json({message: 'User has a book, return it first'});
     }
+
 
 }
 
 const returnBook = async (req, res) => {
-    try {
-        const user = await User.findOne({userId: req.params.userId});
-        const book = await Book.findOne({bookId: req.params.bookId});
-        user.books.present.filter(book => book.bookId !== req.params.bookId);
-        user.books.past.push(book);
-        await user.save();
-        res.status(201).json({message: 'returnBook', user});
-    } catch (err) {
-        res.status(400).json(err.message);
+    const user = await User.findOne({userId: req.params.userId});
+    const book = await Book.findOne({bookId: req.params.bookId});
+    const {userScore} = req.body;
+    if (user.hasBook === true) {
+        if (book.isAvailable === false) {
+            try {
+                const borrowHistory = new BorrowHistory({
+                    userId: user.userId,
+                    bookId: book.bookId,
+                });
+                await borrowHistory.save();
+                book.userScore.push(userScore);
+                book.isAvailable = true;
+                await book.save();
+                user.hasBook = false;
+                await user.save();
+                res.status(201).json(borrowHistory);
+            } catch (err) {
+                res.status(400).json(err.message);
+            }
+        } else {
+            res.status(400).json({message: 'Book has been returned, please try another book'});
+        }
+
+    } else {
+        res.status(400).json({message: 'User has no book, borrow one first'});
     }
+
 }
 
 module.exports = {

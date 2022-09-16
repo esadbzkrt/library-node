@@ -9,9 +9,10 @@ const UserSchema = new Schema({
         required: true,
         unique: true
     },
-    books: {
-        past: [],
-        present: []
+    hasBook: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 });
 
