@@ -3,13 +3,13 @@ const Book = require('../models/bookModel');
 const getAllBooks = async (req, res) => {
     try {
         const books = await Book.find();
-        const booksDto = books.map(book => {
+        const booksResponse = books.map(book => {
             return {
                 id: book.bookId,
                 name: book.name,
             }
         });
-        res.status(200).json(booksDto);
+        res.status(200).json(booksResponse);
     } catch (err) {
         res.status(400).json({message: 'getAllBooks', err});
     }
@@ -18,13 +18,13 @@ const getAllBooks = async (req, res) => {
 const getBookById = async (req, res) => {
     try {
         const book = await Book.findOne({bookId: req.params.bookId});
-        const bookDto = {
+        const bookResponse = {
             id: book.bookId,
             name: book.name,
             score: book.score,
         }
 
-        res.status(200).json(bookDto);
+        res.status(200).json(bookResponse);
     } catch (err) {
         res.status(400).json({message: 'getBookById', err});
     }

@@ -5,14 +5,14 @@ const getAllUsers = async (req, res) => {
 
     try {
         const users = await User.find();
-        const usersDto = users.map(user => {
+        const usersResponse = users.map(user => {
                 return {
                     id: user.userId,
                     name: user.name,
                 }
             }
         );
-        res.status(200).json(usersDto);
+        res.status(200).json(usersResponse);
     } catch (err) {
         res.status(400).json({message: 'getAllUsers', err});
     }
@@ -21,7 +21,7 @@ const getAllUsers = async (req, res) => {
 const getUserById = async (req, res) => {
     try {
         const user = await User.findOne({userId: req.params.userId});
-        const userDto = {
+        const userResponse = {
             id: user.userId,
             name: user.name,
             books: {
@@ -40,7 +40,7 @@ const getUserById = async (req, res) => {
                 )
             }
         }
-        res.status(200).json(userDto);
+        res.status(200).json(userResponse);
     } catch (err) {
         res.status(400).json({message: 'getUserById', err});
     }
