@@ -73,7 +73,7 @@ const borrowBook = async (req, res) => {
                 await user.save();
                 book.isAvailable = false;
                 await book.save();
-                res.status(201).json(borrowHistory);
+                res.status(201).json({ message: 'Book borrowed successfully by user' , borrowHistory});
             } else {
                 res.status(400).json('Book is not available, please try another book');
             }
@@ -97,16 +97,16 @@ const returnBook = async (req, res) => {
                 if(borrowHistory){
                     borrowHistory.isReturned = true;
                     borrowHistory.userScore = userScore;
+                    await borrowHistory.save();
+                    user.presentBook = null;
+                    await user.save();
+                    book.isAvailable = true;
+                    book.userScore.push(userScore);
+                    await book.save();
+                    res.status(201).json('Book returned successfully');
                 }else{
                     res.status(400).json('This book is not borrowed by this user');
                 }
-                await borrowHistory.save();
-                user.presentBook = null;
-                await user.save();
-                book.isAvailable = true;
-                book.userScore.push(userScore);
-                await book.save();
-                res.status(201).json(book);
             } else {
                 res.status(400).json('Book is not borrowed by this user');
             }
