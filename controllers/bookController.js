@@ -16,17 +16,16 @@ const getAllBooks = async (req, res) => {
 }
 
 const getBookById = async (req, res) => {
+    const getBook = await Book.findOne({bookId: req.params.bookId});
     try {
-        const book = await Book.findOne({bookId: req.params.bookId});
         const bookResponse = {
-            id: book.bookId,
-            name: book.name,
-            score: book.score.length>0 ? book.score : -1,
+            id: getBook.bookId,
+            name: getBook.name,
+            userScore: getBook.userScore.length>0 ? getBook.score : -1,
         }
-
         res.status(200).json(bookResponse);
     } catch (err) {
-        res.status(400).json({message: 'getBookById', err});
+        res.status(400).json(err.message);
     }
 }
 

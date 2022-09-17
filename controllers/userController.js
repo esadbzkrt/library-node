@@ -63,62 +63,56 @@ const createUser = async (req, res) => {
 }
 
 const borrowBook = async (req, res) => {
-    const user = await User.findOne({userId: req.params.userId});
-    const book = await Book.findOne({bookId: req.params.bookId});
-    if (user.hasBook === false) {
-        if (book.isAvailable === true) {
-            try {
+    const getUser = await User.findOne({userId: req.params.userId});
+    const getBook = await Book.findOne({bookId: req.params.bookId})
+    try {
+        if (getUser.hasBook === false) {
+            if (getBook.isAvailable === true) {
                 const borrowHistory = new BorrowHistory({
-                    userId: user.userId,
-                    bookId: book.bookId,
+                    user: getUser,
+                    book: getBook,
                 });
-                await borrowHistory.save();
-                book.isAvailable = false;
-                await book.save();
-                user.hasBook = true;
-                await user.save();
-                res.status(201).json(borrowHistory);
-            } catch (err) {
-                res.status(400).json(err.message);
+                await borrowHistory.save().then(() => {
+                        getBook.isAvailable = false;
+                        getBook.save();
+                        getUser.hasBook = true;
+                        getUser.save();
+                        res.status(201).json(getBook);
+                    }
+                );
+            } else {
+                res.status(400).json({message: 'Book is not available, please try another book'});
             }
         } else {
-            res.status(400).json({message: 'Book has been borrowed, please try another book'});
+            res.status(400).json({message: 'User has a book, return it first'});
         }
-
-    } else {
-        res.status(400).json({message: 'User has a book, return it first'});
+    } catch (err) {
+        res.status(400).json(err.message);
     }
-
-
 }
 
 const returnBook = async (req, res) => {
-    const user = await User.findOne({userId: req.params.userId});
-    const book = await Book.findOne({bookId: req.params.bookId});
-    const {userScore} = req.body;
-    if (user.hasBook === true) {
-        if (book.isAvailable === false) {
-            try {
-                const borrowHistory = new BorrowHistory({
-                    userId: user.userId,
-                    bookId: book.bookId,
-                });
-                await borrowHistory.save();
-                book.userScore.push(userScore);
-                book.isAvailable = true;
-                await book.save();
-                user.hasBook = false;
-                await user.save();
-                res.status(201).json(book);
-            } catch (err) {
-                res.status(400).json(err.message);
-            }
+    const getUser = await User.findOne({userId: req.params.userId});
+    const getBook = await Book.findOne({bookId: req.params.bookId});
+    const userScore = req.body.userScore;
+    try {
+        if (getUser.hasBook === true) {
+            const borrowHistory = await BorrowHistory.findOne({user: getUser, book: getBook});
+            borrowHistory.isReturned = true;
+            await borrowHistory.save().then(() => {
+                    getBook.isAvailable = true;
+                    getBook.userScore.push(userScore);
+                    getBook.save();
+                    getUser.hasBook = false;
+                    getUser.save();
+                    res.status(201).json(getBook);
+                }
+            );
         } else {
-            res.status(400).json({message: 'Book has been returned, please try another book'});
+            res.status(400).json({message: 'User does not have a book, borrow a book first'});
         }
-
-    } else {
-        res.status(400).json({message: 'User has no book, borrow one first'});
+    } catch (err) {
+        res.status(400).json(err.message);
     }
 
 }
