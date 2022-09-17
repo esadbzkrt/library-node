@@ -62,24 +62,33 @@ const borrowBook = async (req, res) => {
     try {
         const user = await User.findOne({userId: req.params.userId});
         const book = await Book.findOne({bookId: req.params.bookId});
-        if (!user.presentBook) {
-            if (book.isAvailable === true) {
-                const borrowHistory = new BorrowHistory({
-                    user: user._id,
-                    book: book._id,
-                });
-                await borrowHistory.save();
-                user.presentBook = book;
-                await user.save();
-                book.isAvailable = false;
-                await book.save();
-                res.status(201).json({ message: 'Book borrowed successfully by user' , borrowHistory});
+        if (user) {
+            if (book) {
+                if (!user.presentBook) {
+                    if (book.isAvailable === true) {
+                        const borrowHistory = new BorrowHistory({
+                            user: user._id,
+                            book: book._id,
+                        });
+                        await borrowHistory.save();
+                        user.presentBook = book;
+                        await user.save();
+                        book.isAvailable = false;
+                        await book.save();
+                        res.status(201).json({message: 'Book borrowed successfully by user', borrowHistory});
+                    } else {
+                        res.status(400).json('Book is not available, please try another book');
+                    }
+                } else {
+                    res.status(400).json('User has a book, return it first');
+                }
             } else {
-                res.status(400).json('Book is not available, please try another book');
+                res.status(400).json('This is no book with this bookId');
             }
         } else {
-            res.status(400).json('User has a book, return it first');
+            res.status(400).json('There is no user with this userId');
         }
+
     } catch (err) {
         res.status(400).json(err.message);
     }
@@ -94,7 +103,7 @@ const returnBook = async (req, res) => {
             if (book.isAvailable === false) {
                 const {userScore} = req.body;
                 const borrowHistory = await BorrowHistory.findOne({user: user._id, book: book._id});
-                if(borrowHistory){
+                if (borrowHistory) {
                     borrowHistory.isReturned = true;
                     borrowHistory.userScore = userScore;
                     await borrowHistory.save();
@@ -103,8 +112,8 @@ const returnBook = async (req, res) => {
                     book.isAvailable = true;
                     book.userScore.push(userScore);
                     await book.save();
-                    res.status(201).json({ message: 'Book returned successfully by user with userScore: ' , userScore});
-                }else{
+                    res.status(201).json({message: 'Book returned successfully by user with userScore: ', userScore});
+                } else {
                     res.status(400).json('This book is not borrowed by this user');
                 }
             } else {
