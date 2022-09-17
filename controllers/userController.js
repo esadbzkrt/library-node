@@ -48,11 +48,11 @@ const getUserById = async (req, res) => {
 
 const createUser = async (req, res) => {
 
-    const {error,value} = validator.createUserSchema.validate(req.body);
+    const {error, value} = validator.createUserSchema.validate(req.body);
 
     if (error) {
         res.status(400).json(error.message);
-    }else {
+    } else {
         try {
             const user = new User({
                 userId: req.body.userId,
@@ -104,37 +104,44 @@ const borrowBook = async (req, res) => {
 }
 
 const returnBook = async (req, res) => {
-    try {
-        const user = await User.findOne({userId: req.params.userId});
-        const book = await Book.findOne({bookId: req.params.bookId});
 
-        if (user.presentBook) {
-            if (book.isAvailable === false) {
-                const {userScore} = req.body;
-                const borrowHistory = await BorrowHistory.findOne({user: user._id, book: book._id});
-                if (borrowHistory) {
-                    borrowHistory.isReturned = true;
-                    borrowHistory.userScore = userScore;
-                    await borrowHistory.save();
-                    user.presentBook = null;
-                    await user.save();
-                    book.isAvailable = true;
-                    book.userScore.push(userScore);
-                    await book.save();
-                    res.status(201).json({message: 'Book returned successfully by user with userScore: ', userScore});
+    const {error, value} = validator.returnBookSchema.validate(req.body);
+
+    if (error) {
+        res.status(400).json('Please enter a valid userScore between 0 and 10');
+    } else {
+        try {
+            const user = await User.findOne({userId: req.params.userId});
+            const book = await Book.findOne({bookId: req.params.bookId});
+
+            if (user.presentBook) {
+                if (book.isAvailable === false) {
+                    const {userScore} = req.body;
+                    const borrowHistory = await BorrowHistory.findOne({user: user._id, book: book._id});
+                    if (borrowHistory) {
+                        borrowHistory.isReturned = true;
+                        borrowHistory.userScore = userScore;
+                        await borrowHistory.save();
+                        user.presentBook = null;
+                        await user.save();
+                        book.isAvailable = true;
+                        book.userScore.push(userScore);
+                        await book.save();
+                        res.status(201).json({message: 'Book returned successfully by user', userScore});
+                    } else {
+                        res.status(400).json('This book is not borrowed by this user');
+                    }
                 } else {
-                    res.status(400).json('This book is not borrowed by this user');
+                    res.status(400).json('Book is not borrowed by this user');
                 }
             } else {
-                res.status(400).json('Book is not borrowed by this user');
+                res.status(400).json('User does not have a book, borrow a book first');
             }
-        } else {
-            res.status(400).json('User does not have a book, borrow a book first');
+
+
+        } catch (err) {
+            res.status(400).json(err.message);
         }
-
-
-    } catch (err) {
-        res.status(400).json(err.message);
     }
 
 }
