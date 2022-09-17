@@ -103,7 +103,7 @@ const returnBook = async (req, res) => {
                     book.isAvailable = true;
                     book.userScore.push(userScore);
                     await book.save();
-                    res.status(201).json('Book returned successfully');
+                    res.status(201).json({ message: 'Book returned successfully by user with userScore: ' , userScore});
                 }else{
                     res.status(400).json('This book is not borrowed by this user');
                 }

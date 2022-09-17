@@ -17,11 +17,12 @@ const getAllBooks = async (req, res) => {
 
 const getBookById = async (req, res) => {
     const getBook = await Book.findOne({bookId: req.params.bookId});
+    const averageScore = getBook.userScore.reduce((a, b) => a + b, 0) / getBook.userScore.length;
     try {
         const bookResponse = {
             id: getBook.bookId,
             name: getBook.name,
-            userScore: getBook.userScore.length > 0 ? getBook.score : -1,
+            userScore: getBook.userScore.length > 0 ? averageScore.toFixed(2) : -1,
         }
         res.status(200).json(bookResponse);
     } catch (err) {
