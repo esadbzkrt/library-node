@@ -5,6 +5,9 @@ const BorrowHistorySchema = new Schema({
     user: {
         type: Schema.Types.ObjectId, ref: 'User',
     },
+    name: {
+        type: Schema.Types.String, ref: 'User.name',
+    },
     book: {
         type: Schema.Types.ObjectId, ref: 'Book',
     },
