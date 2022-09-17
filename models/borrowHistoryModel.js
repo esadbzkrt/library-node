@@ -10,19 +10,9 @@ const BorrowHistorySchema = new Schema({
         type: Number,
         required: true
     },
-    borrowDate: {
-        type: Date,
-        required: true,
-        default: Date.now
-    },
-    returnDate: {
-        type: Date,
-        required: true,
-        default: null
-    },
     userScore: {
         type: Schema.Types.ObjectId, ref: 'Book.userScore',
-        required: true,
+        required: false,
         default: null
     }
 });

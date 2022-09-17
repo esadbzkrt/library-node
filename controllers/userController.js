@@ -22,18 +22,18 @@ const getAllUsers = async (req, res) => {
 const getUserById = async (req, res) => {
     try {
         const user = await User.findOne({userId: req.params.userId});
+        const userBooks = await BorrowHistory.find({userId: req.params.userId});
         const userResponse = {
             id: user.userId,
             name: user.name,
             books: {
-                past: user.books.past.map(book => {
-                        return {
-                            name: book.name,
-                            userScore: book.userScore,
-                        }
+                past: userBooks.filter(book => book.returnDate !== null).map(book => {
+                    return {
+                        name: book.name,
+                        userScore: book.userScore
                     }
-                ),
-                present: user.books.present.map(book => {
+                }),
+                present: userBooks.filter(book => book.returnDate === null).map(book => {
                         return {
                             name: book.name,
                         }
@@ -41,9 +41,10 @@ const getUserById = async (req, res) => {
                 )
             }
         }
+
         res.status(200).json(userResponse);
     } catch (err) {
-        res.status(400).json({message: 'getUserById', err});
+        res.status(400).json(err.message);
     }
 }
 
@@ -67,16 +68,16 @@ const borrowBook = async (req, res) => {
     if (user.hasBook === false) {
         if (book.isAvailable === true) {
             try {
-                const presentBorrow = new PresentBorrow({
+                const borrowHistory = new BorrowHistory({
                     userId: user.userId,
                     bookId: book.bookId,
                 });
-                await presentBorrow.save();
+                await borrowHistory.save();
                 book.isAvailable = false;
                 await book.save();
                 user.hasBook = true;
                 await user.save();
-                res.status(201).json(presentBorrow);
+                res.status(201).json(borrowHistory);
             } catch (err) {
                 res.status(400).json(err.message);
             }
@@ -108,7 +109,7 @@ const returnBook = async (req, res) => {
                 await book.save();
                 user.hasBook = false;
                 await user.save();
-                res.status(201).json(borrowHistory);
+                res.status(201).json(book);
             } catch (err) {
                 res.status(400).json(err.message);
             }
