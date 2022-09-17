@@ -12,7 +12,7 @@ const BookSchema = new Schema({
     },
     userScore: {
         type: Array,
-        required: true,
+        required: false,
         trim: true,
         default: []
     },

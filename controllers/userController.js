@@ -84,14 +84,17 @@ const returnBook = async (req, res) => {
     try {
         const user = await User.findOne({userId: req.params.userId});
         const book = await Book.findOne({bookId: req.params.bookId});
+        const {userScore} = req.body;
         const borrowHistory = await BorrowHistory.findOne({user: user._id, book: book._id});
         borrowHistory.isReturned = true;
+        borrowHistory.userScore = userScore;
         await borrowHistory.save();
         user.presentBook = null;
         await user.save();
         book.isAvailable = true;
+        book.userScore.push(userScore);
         await book.save();
-        res.status(201).json(borrowHistory);
+        res.status(201).json(book);
 
     } catch (err) {
         res.status(400).json(err.message);
