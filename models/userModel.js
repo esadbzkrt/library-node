@@ -8,11 +8,13 @@ const UserSchema = new Schema({
         required: true,
         unique: true
     },
-    hasBook: {
-        type: Boolean,
-        required: true,
-        default: false
+    presentBook: {
+        type: Schema.Types.ObjectId, ref: 'Book',
+    },
+    borrowHistory: {
+        type: Schema.Types.ObjectId, ref: 'BorrowHistory',
     }
+
 });
 
 UserSchema.plugin(AutoIncrement, {inc_field: 'userId'});

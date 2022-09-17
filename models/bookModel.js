@@ -20,7 +20,7 @@ const BookSchema = new Schema({
         type: Boolean,
         required: true,
         default: true
-    }
+    },
 });
 
 BookSchema.plugin(AutoIncrement, {inc_field: 'bookId'});
