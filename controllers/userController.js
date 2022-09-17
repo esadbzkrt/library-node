@@ -21,18 +21,18 @@ const getAllUsers = async (req, res) => {
 
 const getUserById = async (req, res) => {
     const getUser = await User.findOne({userId: req.params.userId});
+
     try {
         const pastBookHistory = await BorrowHistory.find({user: getUser, isReturned: true});
         const presentBookHistory = await BorrowHistory.find({user: getUser, isReturned: false});
 
-        const pastBookHistoryResponse = pastBookHistory.map(async book => {
-            const bookResponse = await Book.findOne({_id: book._id});
+        const pastBookHistoryResponse = pastBookHistory.map( book => {
+            // const getBook = await Book.findOne({_id: book._id});
             return {
-                id: bookResponse.bookId,
-                name: bookResponse.name,
+                name: book
+            }
         }
-        });
-
+    );
 
         const userResponse = {
             id: getUser.userId,
@@ -42,7 +42,7 @@ const getUserById = async (req, res) => {
                 present: [...presentBookHistory]
             }
         }
-        res.status(200).json(userResponse);
+        res.status(200).json([...pastBookHistoryResponse]);
     } catch (err) {
         res.status(400).json(err.message);
     }
