@@ -21,10 +21,9 @@ const getAllUsers = async (req, res) => {
 }
 
 const getUserById = async (req, res) => {
-    const user = await User.findOne({userId: req.params.userId}).populate('presentBook', '-_id, name');
-    const borrowHistory = await BorrowHistory.find({user: user._id}).populate('book', '-_id, name');
-
     try {
+        const user = await User.findOne({userId: req.params.userId}).populate('presentBook', '-_id, name');
+        const borrowHistory = await BorrowHistory.find({user: user._id}).populate('book', '-_id, name');
         const userResponse = {
             id: user.userId,
             name: user.name,
@@ -41,7 +40,7 @@ const getUserById = async (req, res) => {
         }
         res.status(200).json(userResponse);
     } catch (err) {
-        res.status(400).json(err.message);
+        res.status(400).json('User could not be found');
     }
 
 }
@@ -59,9 +58,9 @@ const createUser = async (req, res) => {
                 name: req.body.name,
             });
             await user.save();
-            res.status(201).json({message: 'createUser', user});
+            res.status(201).json({message: 'User created successfully', user});
         } catch (err) {
-            res.status(400).json({message: 'createUser', err});
+            res.status(400).json('User could not be created');
         }
     }
 

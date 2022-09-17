@@ -17,9 +17,9 @@ const getAllBooks = async (req, res) => {
 }
 
 const getBookById = async (req, res) => {
-    const getBook = await Book.findOne({bookId: req.params.bookId});
-    const averageScore = getBook.userScore.reduce((a, b) => a + b, 0) / getBook.userScore.length;
     try {
+        const getBook = await Book.findOne({bookId: req.params.bookId});
+        const averageScore = getBook.userScore.reduce((a, b) => a + b, 0) / getBook.userScore.length;
         const bookResponse = {
             id: getBook.bookId,
             name: getBook.name,
@@ -27,7 +27,7 @@ const getBookById = async (req, res) => {
         }
         res.status(200).json(bookResponse);
     } catch (err) {
-        res.status(400).json(err.message);
+        res.status(400).json('Book could not be found');
     }
 }
 
@@ -38,10 +38,10 @@ const createBook = async (req, res) => {
         res.status(400).json('Please enter a valid book name , name should be a string and should not be empty');
     } else {
         try {
-            const newBook = await Book.create(req.body);
-            res.status(201).json({message: 'createBook', newBook});
+            const book = await Book.create(req.body);
+            res.status(201).json({message: 'Book created successfully', book});
         } catch (err) {
-            res.status(400).json({message: 'createBook', err});
+            res.status(400).json('User could not be created');
         }
     }
 }
