@@ -1,7 +1,6 @@
 const User = require('../models/userModel');
 const Book = require('../models/bookModel');
-const BorrowHistory = require('../models/BorrowHistoryModel');
-const PresentBorrow = require('../models/PresentBorrowModel');
+const BorrowHistory = require('../models/borrowHistoryModel');
 
 const getAllUsers = async (req, res) => {
 

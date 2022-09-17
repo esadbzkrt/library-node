@@ -1,9 +1,9 @@
-const Borrow = require('../models/borrowHistoryModel');
-const PresentBorrow = require('../models/PresentBorrowModel');
+const BorrowHistory = require('../models/borrowHistoryModel');
+
 
 const getAllBorrowHistory = async (req, res) => {
     try {
-        const borrowHistory = await Borrow.find();
+        const borrowHistory = await BorrowHistory.find();
         res.status(200).json(borrowHistory);
     } catch (error) {
         res.status(404).json({ message: error.message });
@@ -12,7 +12,7 @@ const getAllBorrowHistory = async (req, res) => {
 
 const getBorrowHistoryByUserId = async (req, res) => {
     try {
-        const borrowHistory = await Borrow.find({ userId: req.params.userId });
+        const borrowHistory = await BorrowHistory.find({ userId: req.params.userId });
         res.status(200).json(borrowHistory);
     } catch (error) {
         res.status(404).json({ message: error.message });
@@ -21,7 +21,7 @@ const getBorrowHistoryByUserId = async (req, res) => {
 
 const getAllPresentBorrow = async (req, res) => {
     try {
-        const presentBorrow = await Borrow.find();
+        const presentBorrow = await BorrowHistory.find();
         res.status(200).json(presentBorrow);
     } catch (error) {
         res.status(404).json({ message: error.message });
@@ -30,7 +30,7 @@ const getAllPresentBorrow = async (req, res) => {
 
 const getPresentBorrowByUserId = async (req, res) => {
     try {
-        const presentBorrow = await Borrow.find({ userId: req.params.userId });
+        const presentBorrow = await BorrowHistory.find({ userId: req.params.userId });
         res.status(200).json(presentBorrow);
     } catch (error) {
         res.status(404).json({ message: error.message });
