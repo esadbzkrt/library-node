@@ -3,7 +3,6 @@ const Book = require('../models/bookModel');
 const BorrowHistory = require('../models/borrowHistoryModel');
 
 const getAllUsers = async (req, res) => {
-
     try {
         const users = await User.find();
         const usersResponse = users.map(user => {
@@ -20,24 +19,29 @@ const getAllUsers = async (req, res) => {
 }
 
 const getUserById = async (req, res) => {
-    const getUser = await User.findOne({userId: req.params.userId});
+    const user = await User.findOne({userId: req.params.userId}).populate('presentBook', '-_id, name');
+    const borrowHistory = await BorrowHistory.find({user: user._id}).populate('book', '-_id, name');
 
     try {
-        const pastBookHistory = await BorrowHistory.find({user: getUser, isReturned: true});
-        const presentBookHistory = await BorrowHistory.find({user: getUser, isReturned: false});
-
         const userResponse = {
-            id: getUser.userId,
-            name: getUser.name,
+            id: user.userId,
+            name: user.name,
             books: {
-                past: [...pastBookHistory],
-                present: [...presentBookHistory],
-            }
+                past: borrowHistory.filter(borrowHistory => borrowHistory.isReturned === true).map(borrowHistory => {
+                    return {
+                        name: borrowHistory.book.name,
+                        userScore: borrowHistory.userScore,
+                    }
+                }
+                ),
+                    },
+                present: user.presentBook ? user.presentBook: [],
         }
         res.status(200).json(userResponse);
     } catch (err) {
         res.status(400).json(err.message);
     }
+
 }
 
 const createUser = async (req, res) => {
@@ -56,19 +60,19 @@ const createUser = async (req, res) => {
 
 const borrowBook = async (req, res) => {
     try {
-        const user = await User.findOne({userId: req.body.userId});
-        const book = await Book.findOne({bookId: req.body.bookId});
-        const {userScore} = req.body;
-        const borrowHistory = await BorrowHistory.create({
-            user: user,
-            book: book,
-            bookName: book.name,
-            userScore: book.userScore.push(userScore),
-            isReturned: false,
+        const user = await User.findOne({userId: req.params.userId});
+        const book = await Book.findOne({bookId: req.params.bookId});
+        const borrowHistory = new BorrowHistory({
+            user: user._id,
+            book: book._id,
         });
-        await book.updateOne({$push: {userScore: userScore}});
-        await book.updateOne({$set: {isAvailable: false}});
+        await borrowHistory.save();
+        user.presentBook = book;
+        await user.save();
+        book.isAvailable = false;
+        await book.save();
         res.status(201).json(borrowHistory);
+
     } catch (err) {
         res.status(400).json(err.message);
     }
@@ -78,12 +82,20 @@ const borrowBook = async (req, res) => {
 
 const returnBook = async (req, res) => {
     try {
-        const user = await User.findOne({userId: req.body.userId});
-        const book = await Book.findOne({bookId: req.body.bookId});
-        const borrowHistory = await BorrowHistory.findOne({user: user, book: book, isReturned: false});
-        await borrowHistory.updateOne({$set: {isReturned: true}});
-        await book.updateOne({$set: {isAvailable: true}});
-        res.status(201).json(borrowHistory);
+        const user = await User.findOne({userId: req.params.userId});
+        const book = await Book.findOne({bookId: req.params.bookId});
+        const {userScore} = req.body;
+        const borrowHistory = await BorrowHistory.findOne({user: user._id, book: book._id});
+        borrowHistory.isReturned = true;
+        borrowHistory.userScore = userScore;
+        await borrowHistory.save();
+        user.presentBook = null;
+        await user.save();
+        book.isAvailable = true;
+        book.userScore.push(userScore);
+        await book.save();
+        res.status(201).json(book);
+
     } catch (err) {
         res.status(400).json(err.message);
     }

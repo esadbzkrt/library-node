@@ -3,14 +3,10 @@ const Schema = mongoose.Schema;
 
 const BorrowHistorySchema = new Schema({
     user: {
-        type: Schema.Types.String, ref: 'User',
+        type: Schema.Types.ObjectId, ref: 'User',
     },
     book: {
-        type: Schema.Types.String, ref: 'Book',
-    },
-    bookName: {
-        type: String,
-        required: false,
+        type: Schema.Types.ObjectId, ref: 'Book',
     },
     isReturned: {
         type: Boolean,
