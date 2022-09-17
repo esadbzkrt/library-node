@@ -1,6 +1,8 @@
 const User = require('../models/userModel');
 const Book = require('../models/bookModel');
 const BorrowHistory = require('../models/borrowHistoryModel');
+const validator = require('../validator');
+
 
 const getAllUsers = async (req, res) => {
     try {
@@ -45,15 +47,22 @@ const getUserById = async (req, res) => {
 }
 
 const createUser = async (req, res) => {
-    try {
-        const user = new User({
-            userId: req.body.userId,
-            name: req.body.name,
-        });
-        await user.save();
-        res.status(201).json({message: 'createUser', user});
-    } catch (err) {
-        res.status(400).json({message: 'createUser', err});
+
+    const {error,value} = validator.createUserSchema.validate(req.body);
+
+    if (error) {
+        res.status(400).json(error.message);
+    }else {
+        try {
+            const user = new User({
+                userId: req.body.userId,
+                name: req.body.name,
+            });
+            await user.save();
+            res.status(201).json({message: 'createUser', user});
+        } catch (err) {
+            res.status(400).json({message: 'createUser', err});
+        }
     }
 
 }
