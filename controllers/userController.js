@@ -22,27 +22,19 @@ const getAllUsers = async (req, res) => {
 const getUserById = async (req, res) => {
     try {
         const user = await User.findOne({userId: req.params.userId});
-        const userBooks = await BorrowHistory.find({userId: req.params.userId});
+        const bookHistory = await BorrowHistory.find({user: user});
+        const pastBorrows = bookHistory.filter(borrow => borrow.isReturned === true);
+        const presentBorrows = bookHistory.filter(borrow => borrow.isReturned === false);
+
         const userResponse = {
             id: user.userId,
             name: user.name,
             books: {
-                past: userBooks.filter(book => book.returnDate !== null).map(book => {
-                    return {
-                        name: book.name,
-                        userScore: book.userScore
-                    }
-                }),
-                present: userBooks.filter(book => book.returnDate === null).map(book => {
-                        return {
-                            name: book.name,
-                        }
-                    }
-                )
+                past:[...pastBorrows],
+                present: [...presentBorrows]
             }
         }
-
-        res.status(200).json(userResponse);
+        res.status(200).json(bookHistory);
     } catch (err) {
         res.status(400).json(err.message);
     }

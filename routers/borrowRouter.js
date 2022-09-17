@@ -3,9 +3,9 @@ const router = express.Router();
 
 const borrowController = require('../controllers/borrowController');
 
-router.get('/', borrowController.getAllBorrowsHistory)
+router.get('/borrows', borrowController.getAllBorrowsHistory)
 
-router.get('/:userId', borrowController.getBorrowHistoryByUserId)
+router.get('/borrows/:userId', borrowController.getBorrowHistoryByUserId)
 
 router.get('/present', borrowController.getAllPresentBorrows)
 
