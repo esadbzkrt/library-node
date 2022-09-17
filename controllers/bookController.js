@@ -1,4 +1,5 @@
 const Book = require('../models/bookModel');
+const validator = require('../validator');
 
 const getAllBooks = async (req, res) => {
     try {
@@ -31,11 +32,17 @@ const getBookById = async (req, res) => {
 }
 
 const createBook = async (req, res) => {
-    try {
-        const newBook = await Book.create(req.body);
-        res.status(201).json({message: 'createBook', newBook});
-    } catch (err) {
-        res.status(400).json({message: 'createBook', err});
+    const {error, value} = validator.createBookSchema.validate(req.body);
+
+    if (error) {
+        res.status(400).json('Please enter a valid book name , name should be a string and should not be empty');
+    } else {
+        try {
+            const newBook = await Book.create(req.body);
+            res.status(201).json({message: 'createBook', newBook});
+        } catch (err) {
+            res.status(400).json({message: 'createBook', err});
+        }
     }
 }
 
